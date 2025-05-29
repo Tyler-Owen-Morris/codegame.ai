@@ -1,0 +1,11 @@
+.env
+/venv/
+
+/__pycache__
+*/__pycache__
+utils/minigames/__pycache__/*
+
+routes/__pycache__/*
+
+/_huntloader/
+/_huntloader/*
