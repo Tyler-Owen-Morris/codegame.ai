@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+    const { isAuthenticated } = useOutletContext();
+    const navigate = useNavigate();
     const [userStats, setUserStats] = useState({
         codePoints: 0,
         puzzlesSolved: 0,
@@ -9,9 +12,15 @@ const Dashboard = () => {
     });
 
     useEffect(() => {
+        // Redirect to splash if not authenticated
+        if (isAuthenticated === false) {
+            navigate('/', { replace: true });
+            return;
+        }
+
         // Simulate API call to fetch user stats
         fetchUserStats();
-    }, []);
+    }, [isAuthenticated, navigate]);
 
     const fetchUserStats = async () => {
         try {

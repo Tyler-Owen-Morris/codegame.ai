@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import QRCode from 'qrcode';
 
 const QRLogin = () => {
+    const { setIsAuthenticated, setUser } = useOutletContext();
+    const navigate = useNavigate();
     const [qrCodeUrl, setQrCodeUrl] = useState('');
     const [sessionId, setSessionId] = useState('');
     const [isConnected, setIsConnected] = useState(false);
@@ -75,9 +78,23 @@ const QRLogin = () => {
             if (sessionId && Date.now() - parseInt(sessionId.split('_')[2]) > 10000) {
                 if (Math.random() > 0.7) {
                     setIsConnected(true);
+
+                    // Simulate successful authentication
+                    const mockUser = {
+                        id: 'user_' + Date.now(),
+                        name: 'Mobile User',
+                        email: 'user@codegame.ai',
+                        connectedAt: new Date().toISOString(),
+                    };
+
+                    // Store user data and set authentication
+                    localStorage.setItem('codeGameUser', JSON.stringify(mockUser));
+                    setUser(mockUser);
+                    setIsAuthenticated(true);
+
                     setTimeout(() => {
-                        // Redirect to dashboard after successful connection
-                        window.location.href = '/dashboard';
+                        // Navigate to dashboard after successful connection
+                        navigate('/dashboard');
                     }, 2000);
                 }
             }
@@ -89,6 +106,10 @@ const QRLogin = () => {
     const handleRefresh = () => {
         setIsConnected(false);
         generateQRCode();
+    };
+
+    const handleBackToSplash = () => {
+        navigate('/');
     };
 
     if (loading) {
@@ -152,9 +173,9 @@ const QRLogin = () => {
                 </button>
                 <button
                     className="primary-button"
-                    onClick={() => window.location.href = '/login'}
+                    onClick={handleBackToSplash}
                 >
-                    Use Email Instead
+                    Back to Home
                 </button>
             </div>
 

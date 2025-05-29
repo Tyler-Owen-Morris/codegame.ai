@@ -1,7 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import App from '../App';
 import Dashboard from './Dashboard';
-import Login from './Login';
+import Splash from './Splash';
 import QRLogin from './QRLogin';
 
 export const router = createBrowserRouter([
@@ -11,15 +11,15 @@ export const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <Dashboard />,
+                element: <Splash />,
             },
             {
                 path: '/dashboard',
                 element: <Dashboard />,
             },
             {
-                path: '/login',
-                element: <Login />,
+                path: '/splash',
+                element: <Splash />,
             },
             {
                 path: '/qr-login',
