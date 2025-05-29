@@ -1,0 +1,133 @@
+---
+description: Follow these project rules
+globs: 
+alwaysApply: false
+---
+## Project Overview
+
+*   **Type:** Mobile puzzle game with companion web portal
+*   **Description:** Codegame.ai is a mobile puzzle game using real-world QR codes to trigger AI-generated puzzles. Companion website “Code Portal” displays stats, virtual QR codes, and account linking.
+*   **Primary Goal:** Provide a seamless QR-code-based AI puzzle experience on mobile and web, ensuring <2 s scan-to-puzzle latency, 99.9% uptime with static-fallback, and engaging social gameplay.
+
+## Project Structure
+
+### Framework-Specific Routing
+
+*   **Directory Rules:**
+
+    *   React Router 6: Use `src/routes` with `createBrowserRouter` for website routing
+    *   Example 1: "Next.js 14 (App Router)" → `app/[route]/page.tsx` conventions
+    *   Example 2: "Next.js (Pages Router)" → `pages/[route].tsx` pattern
+    *   Example 3: "React Router 6" → `src/routes/` with `createBrowserRouter`
+
+### Core Directories
+
+*   **Versioned Structure:**
+
+    *   `mobile/`: Expo React Native app source (expo@~49.0.0, RN 0.71+)
+    *   `website/`: React 18 app source with React Router 6
+    *   `backend/`: Node.js (Express 4.x) API routes and controllers
+    *   `shared/`: Shared modules (utils, puzzle library, types)
+    *   `infra/`: IaC definitions (AWS CDK/CloudFormation for EC2/S3/Lambda)
+
+### Key Files
+
+*   **Stack-Versioned Patterns:**
+
+    *   `mobile/App.js`: Entry point for Expo/React Native with React Navigation 6
+    *   `mobile/screens/ScanScreen.js`: QR scanning via `expo-barcode-scanner`
+    *   `mobile/screens/PuzzleScreen.js`: Renders AI puzzles and fallback logic
+    *   `website/src/index.js`: React 18 root with `createRoot` and `BrowserRouter`
+    *   `website/src/routes/index.js`: `createBrowserRouter` definitions for `/dashboard`, `/login`, `/qr-login`
+    *   `backend/src/index.js`: Express 4.x app bootstrap
+    *   `backend/src/routes/api.js`: Defines `/scan`, `/puzzle`, `/auth` endpoints
+
+## Tech Stack Rules
+
+*   **Version Enforcement:**
+
+    *   `expo@~49.0.0`: Use `expo-barcode-scanner`; no custom native modules
+    *   `react@18.x`: Functional components with Hooks only; no class components
+    *   `express@4.x`: Use `express.Router()` modular routes; no Koa/Hapi
+    *   `@aws-sdk/client-dynamodb@^3.x`: Use `DynamoDBDocumentClient`; no v2 SDK
+    *   `xai-api@latest`: Must implement static-puzzle fallback; never block UX
+
+## PRD Compliance
+
+*   "all existing QR codes will be leveraged to create puzzles on top of": must handle arbitrary QR formats without requiring custom codes
+*   "QR scan -> puzzle load time < 2 seconds": ensure end-to-end latency under 2 s including AI call or fallback
+*   "99.9% uptime, with auto-fallback to static puzzles": design redundant fallback mechanism
+*   "No pay-to-win mechanics for users": monetize via partnerships only; no paid boosts
+
+## App Flow Integration
+
+*   Mobile QR Flow → `mobile/screens/ScanScreen.js` navigates to `PuzzleScreen` on success; pass `{ qrData, location, timestamp }`
+*   Mobile Puzzle Flow → `PuzzleScreen` calls xAI API with retry/backoff or loads static puzzle; on solve, POST to `/scan` awarding Code Points
+*   Website Auth Flow → `website/src/routes/Login.js` displays QR for scanning; mobile app calls `/auth/qr-login` to link accounts
+*   Website Dashboard Flow → `website/src/routes/Dashboard.js` fetches stats from `/user/:id`; shows Code Points, puzzles solved, scan history
+
+## Best Practices
+
+*   React Native (Expo 49.0.0)
+    *   Request and manage camera permissions at runtime
+    *   Use React Navigation 6 with custom transitions for puzzle assembly UX
+    *   Preload assets via `expo-asset` to reduce load spikes
+
+*   React (React 18, React Router 6)
+    *   Define nested routes and layouts with `createBrowserRouter`
+    *   Lazy-load routes/components using `React.lazy` + `Suspense`
+    *   Enforce prop types or migrate to TypeScript for type safety
+
+*   Node.js / Express (Express 4.x)
+    *   Separate routes, controllers, and services; use `express.Router()` modules
+    *   Validate/sanitize inputs with `Joi` or `express-validator`
+    *   Centralize error handling and logging middleware
+
+*   AWS DynamoDB (SDK v3)
+    *   Model hot-partitions carefully; use on-demand capacity and CloudWatch alarms
+    *   Use `DynamoDBDocumentClient` for marshalling; encrypt at rest
+    *   Leverage TTL for scan history retention
+
+*   AWS Hosting (EC2, S3, Lambda)
+    *   Serve website via S3 + CloudFront with cache invalidation rules
+    *   Containerize backend for ECS Fargate or use Lambda behind API Gateway
+    *   Automate CI/CD with GitHub Actions or AWS CodePipeline
+
+*   xAI API
+    *   Wrap calls with retry logic and exponential backoff
+    *   Validate payload schema; fallback immediately to static puzzle library on error
+    *   Cache recent puzzle outputs for identical inputs (5-min TTL)
+
+*   Cursor IDE
+    *   Track rule usage via `cursor_metrics.md`; update on each rule reference
+    *   Use live templates for route/component scaffolding
+    *   Annotate code with cursor comments for AI-assisted completions
+
+## Rules
+
+*   Derive folder/file patterns **directly** from `techStackDoc` versions.
+*   If Next.js 14 App Router: Enforce `app/` directory with nested route folders.
+*   If Pages Router: Use `pages/*.tsx` flat structure.
+*   Mirror this logic for React Router, SvelteKit, etc.
+*   Never mix version patterns (e.g., no `pages/` in App Router projects).
+
+## Rules Metrics
+
+Before starting the project development, create a metrics file in the root of the project called
+
+`cursor_metrics.md`.
+
+### Instructions:
+
+*   Each time a cursor rule is used as context, update `cursor_metrics.md`.
+*   Use the following format for `cursor_metrics.md:`
+
+# Rules Metrics
+
+## Usage
+The number of times rules is used as context
+
+*   rule-name.mdc: 5
+*   another-rule.mdc: 2
+
+*   ...other rules
